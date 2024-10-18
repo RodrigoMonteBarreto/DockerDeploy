@@ -37,6 +37,94 @@ jobs:
       - name: Run tests
         run: dotnet test --no-build --verbosity normal
 
+  deploy-dev:
+        runs-on: ubuntu-latest
+        enviroment:
+          name: dev
+          url: 'rodrigo.com'
+        needs:  build
+    steps:
+      # Passo 1: Verifica o código do repositório
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # Passo 2: Instala o .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  # Define a versão do .NET que seu projeto usa
+
+      # Passo 3: Restaura as dependências do projeto
+      - name: Restore dependencies
+        run: dotnet restore - dev
+
+      # Passo 4: Executa o build do projeto
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      # Passo 5: Executa os testes
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal - dev
+
+  deploy-hmg:
+        runs-on: ubuntu-latest
+        enviroment:
+          name: hmg
+          url: 'rodrigo.com'
+        needs:  deploy-dev
+    steps:
+      # Passo 1: Verifica o código do repositório
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # Passo 2: Instala o .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  # Define a versão do .NET que seu projeto usa
+
+      # Passo 3: Restaura as dependências do projeto
+      - name: Restore dependencies
+        run: dotnet restore - hmg
+
+      # Passo 4: Executa o build do projeto
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      # Passo 5: Executa os testes
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal - hmg
+
+
+ deploy-prd:
+        runs-on: ubuntu-latest
+        enviroment:
+          name: prd
+          url: 'rodrigo.com'
+        needs:  deploy-hmg
+    steps:
+      # Passo 1: Verifica o código do repositório
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # Passo 2: Instala o .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  # Define a versão do .NET que seu projeto usa
+
+      # Passo 3: Restaura as dependências do projeto
+      - name: Restore dependencies
+        run: dotnet restore - prd
+
+      # Passo 4: Executa o build do projeto
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      # Passo 5: Executa os testes
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal - prd
+
   deploy:
     # Define que o job de deploy será executado apenas após o build
     runs-on: ubuntu-latest
