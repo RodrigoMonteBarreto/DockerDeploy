@@ -1,0 +1,68 @@
+name: CI/CD Pipeline
+
+# Define quando esse workflow será executado
+on:
+  push:
+    branches:
+      - master  # Executa o pipeline ao fazer push na branch 'main'
+  pull_request:
+    branches:
+      - master  # Executa o pipeline ao abrir um PR na branch 'main'
+
+jobs:
+  build:
+    # Define o sistema operacional para rodar o job (nesse caso, Ubuntu)
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Verifica o código do repositório
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      # Passo 2: Instala o .NET Core SDK
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  # Define a versão do .NET que seu projeto usa
+
+      # Passo 3: Restaura as dependências do projeto
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Passo 4: Executa o build do projeto
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore
+
+      # Passo 5: Executa os testes
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal
+
+  deploy:
+    # Define que o job de deploy será executado apenas após o build
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      # Passo 1: Publica o build para a produção
+      - name: Publish
+        run: dotnet publish -c Release -o out
+
+      # Passo 2: Deploy da aplicação
+      # Aqui você pode personalizar como o deploy será feito
+      # Como exemplo, vamos fazer o deploy para um servidor de FTP.
+      # Substitua este passo por outra ação, dependendo do seu ambiente (por exemplo, Azure, AWS, ou um servidor específico).
+       #- name: Deploy to FTP server
+         #uses: SamKirkland/FTP-Deploy-Action@4.2.0
+        # with:
+          # ftp-server: ftp://example.com
+           #ftp-username: ${{ secrets.FTP_USERNAME }}
+           #ftp-password: ${{ secrets.FTP_PASSWORD }}
+          #local-dir: out
