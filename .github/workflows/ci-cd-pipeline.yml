@@ -4,10 +4,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master  # Executa o pipeline ao fazer push na branch 'master'
+      - feature/criacao-projeto  # Executa o pipeline ao fazer push na branch 'main'
   pull_request:
     branches:
-      - master  # Executa o pipeline ao abrir um PR na branch 'master'
+      - main  # Executa o pipeline ao abrir um PR na branch 'main'
 
 jobs:
   build:
